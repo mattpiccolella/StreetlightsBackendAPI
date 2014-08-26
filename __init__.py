@@ -22,12 +22,17 @@ def create_new_user():
     response = {}
     if request.method == 'POST':
         if 'name' in request.form and 'email' in request.form and 'password' in request.form and 'biography' in request.form:
-            response['status'] = 'SUCCESS'
-
+            new_user = User(request.form['name'], request.form['email'], request.form['password'], request.form['biography'])
+            if len(User.query.filter_by(email=request.form['email']).all()) == 0:
+                db.session.add(new_user)
+                db.session.commit()
+                response['status'] = 'success'
+            else:
+                response['status'] = 'already exists'
         else:
-            response['status'] = 'INCOMPLETE'
+            response['status'] = 'incomplete'
     else:
-        response['status'] = 'FAILURE'
+        response['status'] = 'you must post'
     return jsonify(response)
 
 if __name__ == "__main__":
