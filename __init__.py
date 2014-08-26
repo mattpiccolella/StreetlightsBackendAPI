@@ -10,12 +10,17 @@ db.init_app(app)
 def hello():
     return "Hello, World!"
 
-@app.route("/newfacebookuser/<first>/<last>/<email>/<facebook_id>/<photo_url>")
-def new_facebook_user(first, last, email, facebook_id, photo_url):
-    newfacebookuser = User(first, last, email, facebook_id, photo_url)
-    db.session.add(newfacebookuser)
-    db.session.commit()
-    return "Successfully created a new user."
+@app.route("/get_user/<user_id>")
+def get_user(user_id):
+    user = User.query.filter_by(uid=user_id).first()
+    response = {}
+    response['status'] = 'success'
+    response['name'] = user.name
+    response['email'] = user.email
+    response['biography'] = user.biography
+    response['password'] = user.password
+    response['user_id'] = user.uid
+    return jsonify(response)
 
 @app.route("/create_new_user", methods=['POST', 'GET'])
 def create_new_user():
@@ -27,6 +32,8 @@ def create_new_user():
                 db.session.add(new_user)
                 db.session.commit()
                 response['status'] = 'success'
+                saved_user = User.query.filter_by(email=request.form['email']).first()
+                response['user_id'] = saved_user.uid
             else:
                 response['status'] = 'already exists'
         else:
