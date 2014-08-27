@@ -42,5 +42,20 @@ def create_new_user():
         response['status'] = 'you must post'
     return jsonify(response)
 
+@app.route("/create_new_post", methods=['POST', 'GET'])
+def create_new_post():
+    response = {}
+    if request.method == 'POST':
+        if 'userid' in request.form and 'description' in request.form and 'latitude' in request.form and 'longitude' in request.form and 'expiration' in request.form:
+            new_stream_item = StreamItem(request.form['description'], float(request.form['latitude']), float(request.form['longitude']), int(request.form['userid']), int(request.form['expiration']))
+            db.session.add(new_stream_item)
+            db.session.commit()
+            response['status'] = 'success'
+        else:
+            response['status'] = 'incomplete'
+    else:
+        response['status'] = 'you must post'
+    return jsonify(response)
+
 if __name__ == "__main__":
     app.run()
