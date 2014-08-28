@@ -70,13 +70,16 @@ def get_posts(longi, lati, radius):
     latitude = float(lati)
     max_lat = latitude + float(radius / MILES_PER_LAT)
     min_lat = latitude - float(radius / MILES_PER_LAT)
-    stream_items = StreamItem.query.filter(StreamItem.expiration > datetime.now(), StreamItem.latitude >= min_lat, StreamItem.latitude <= max_lat, StreamItem.longitude >= min_long, StreamItem.longitude <= max_long).all()
+    stream_items = StreamItem.query.filter(StreamItem.expiration > datetime.now(), StreamItem.latitude >= min_lat, StreamItem.latitude <= max_lat, StreamItem.longitude >= min_long, StreamItem.longitude <= max_long).order_by(StreamItem.created.desc()).all()
     response = {}
-    response['number'] = len(stream_items)
-    response['max_long'] = max_long
-    response['min_long'] = min_long
-    response['max_lat'] = max_lat
-    response['min_lat'] = min_lat
+    items = []
+    for stream_item in stream_items:
+        stream_item_json = stream_item.toJSON()
+        stream_item_user = User.query.filter_by(uid=stream_item.user_id).first()
+        stream_item_json['user'] = stream_item_user.toJSON()
+        items.append(stream_item_json)
+    response['results'] = items
+    response['status'] = 'success'
     return jsonify(response)
         
 if __name__ == "__main__":

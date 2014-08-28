@@ -18,6 +18,12 @@ class User(db.Model):
         self.password = password
         self.biography = biography
 
+    def toJSON(self):
+        json = {}
+        json['user_id'] = self.uid
+        json['name'] = self.name
+        return json
+
 class StreamItem(db.Model):
     __tablename__ = 'streamitems'
     stream_item_id = db.Column(db.Integer, primary_key = True)
@@ -35,6 +41,16 @@ class StreamItem(db.Model):
         self.user_id = user_id
         self.created = datetime.now()
         self.expiration = self.created + timedelta(minutes = int(expiration_minutes))
+
+    def toJSON(self):
+        json = {}
+        json['stream_item_id'] = self.stream_item_id
+        json['description'] = self.description
+        json['latitude'] = self.latitude
+        json['longitude'] = self.longitude
+        json['created'] = self.created
+        json['expiration'] = self.expiration
+        return json
         
 
     
