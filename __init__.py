@@ -1,8 +1,12 @@
 from flask import Flask, jsonify, request
-from models import db, User
+from models import db, User, StreamItem
+from datetime import datetime
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:cranberry@localhost/development'
+
+MILES_PER_LONG = 53.0
+MILES_PER_LAT = 69.0
 
 db.init_app(app)
 
@@ -57,5 +61,23 @@ def create_new_post():
         response['status'] = 'you must post'
     return jsonify(response)
 
+@app.route("/get_posts/<longi>/<lati>/<radius>")
+def get_posts(longi, lati, radius):
+    longitude = float(longi)
+    radius = float(radius)
+    max_long = longitude + float(radius / MILES_PER_LONG)
+    min_long = longitude - float(radius / MILES_PER_LONG)
+    latitude = float(lati)
+    max_lat = latitude + float(radius / MILES_PER_LAT)
+    min_lat = latitude - float(radius / MILES_PER_LAT)
+    stream_items = StreamItem.query.filter(StreamItem.expiration > datetime.now(), StreamItem.latitude >= min_lat, StreamItem.latitude <= max_lat, StreamItem.longitude >= min_long, StreamItem.longitude <= max_long).all()
+    response = {}
+    response['number'] = len(stream_items)
+    response['max_long'] = max_long
+    response['min_long'] = min_long
+    response['max_lat'] = max_lat
+    response['min_lat'] = min_lat
+    return jsonify(response)
+        
 if __name__ == "__main__":
     app.run()

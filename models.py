@@ -1,5 +1,5 @@
 from flask.ext.sqlalchemy import SQLAlchemy
-import datetime
+from datetime import datetime, timedelta
 
 db = SQLAlchemy()
 
@@ -29,12 +29,12 @@ class StreamItem(db.Model):
     expiration = db.Column(db.DateTime)
 
     def __init__(self, description, latitude, longitude, user_id, expiration_minutes):
-        self.name = description
+        self.description = description
         self.latitude = latitude
         self.longitude = longitude
-        user_id = user_id
-        created = datetime.now()
-        expired = created + datetime.timedelta(minutes = int(expiration_minutes))
+        self.user_id = user_id
+        self.created = datetime.now()
+        self.expiration = self.created + timedelta(minutes = int(expiration_minutes))
         
 
     
