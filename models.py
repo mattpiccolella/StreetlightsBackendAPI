@@ -48,9 +48,12 @@ class StreamItem(db.Model):
         json['description'] = self.description
         json['latitude'] = self.latitude
         json['longitude'] = self.longitude
-        json['created'] = self.created
-        json['expiration'] = self.expiration
+        json['created'] = unix_time_millis(self.created)
+        json['expiration'] = unix_time_millis(self.expiration)
         return json
         
-
+def unix_time_millis(dt):
+    epoch = datetime.utcfromtimestamp(0)
+    delta = dt - epoch
+    return delta.total_seconds()
     
